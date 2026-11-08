@@ -1,0 +1,650 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeOS | Agent Monitoring</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Inter, Arial, sans-serif;
+            background: #0b1020;
+            color: #e5e7eb;
+            min-height: 100vh;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        aside {
+            width: 230px;
+            background: #111827;
+            border-right: 1px solid #263247;
+            padding: 28px 20px;
+        }
+
+        .brand {
+            font-size: 25px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .brand span {
+            color: #38bdf8;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 12px;
+            margin-bottom: 40px;
+        }
+
+        .nav-label {
+            color: #64748b;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 14px;
+        }
+
+        .nav-item {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-size: 14px;
+            background: #1e293b;
+        }
+
+        .sidebar-status {
+            margin-top: 45px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .online-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            margin-right: 7px;
+        }
+
+        main {
+            flex: 1;
+            padding: 32px;
+            min-width: 0;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        h1 {
+            font-size: 27px;
+            color: #f8fafc;
+        }
+
+        .header-description {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-top: 7px;
+        }
+
+        .refresh-button {
+            background: #0284c7;
+            color: white;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .refresh-button:hover {
+            background: #0369a1;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background: #111827;
+            border: 1px solid #263247;
+            border-radius: 12px;
+            padding: 22px;
+        }
+
+        .card-label {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .card-value {
+            font-size: 30px;
+            font-weight: 750;
+            color: #f8fafc;
+        }
+
+        .success-text {
+            color: #4ade80;
+        }
+
+        .failure-text {
+            color: #f87171;
+        }
+
+        .section {
+            margin-bottom: 28px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        h2 {
+            font-size: 18px;
+            color: #f8fafc;
+        }
+
+        .muted {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .agents {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .agent-card {
+            background: #111827;
+            border: 1px solid #263247;
+            border-radius: 10px;
+            padding: 19px;
+        }
+
+        .agent-name {
+            font-size: 14px;
+            font-weight: 650;
+            margin-bottom: 10px;
+        }
+
+        .agent-count {
+            font-size: 25px;
+            font-weight: 750;
+            color: #38bdf8;
+        }
+
+        .table-container {
+            background: #111827;
+            border: 1px solid #263247;
+            border-radius: 12px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        th, td {
+            padding: 15px 17px;
+            text-align: left;
+            border-bottom: 1px solid #263247;
+            font-size: 13px;
+        }
+
+        th {
+            color: #94a3b8;
+            font-weight: 600;
+            background: #172033;
+        }
+
+        td {
+            color: #dbeafe;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 650;
+        }
+
+        .status-success {
+            background: #123a2b;
+            color: #4ade80;
+        }
+
+        .status-failed {
+            background: #451d27;
+            color: #fca5a5;
+        }
+
+        .task-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            background: #172033;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .task-status {
+            font-size: 11px;
+            color: #fbbf24;
+        }
+
+        .completed {
+            color: #4ade80;
+        }
+
+        .empty {
+            color: #94a3b8;
+            text-align: center;
+            padding: 25px;
+            font-size: 13px;
+        }
+
+        #lastUpdated {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        #errorMessage {
+            color: #fca5a5;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 1000px) {
+            .stats, .agents {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 650px) {
+            aside {
+                display: none;
+            }
+
+            main {
+                padding: 20px 14px;
+            }
+
+            .stats, .agents {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            .card-value {
+                font-size: 24px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layout">
+
+    <aside>
+        <div class="brand">Life<span>OS</span></div>
+        <div class="subtitle">Agentic AI Platform</div>
+
+        <div class="nav-label">Workspace</div>
+        <div class="nav-item">▦ Overview</div>
+        <div class="nav-item">◈ Agent Activity</div>
+        <div class="nav-item">☷ Execution Logs</div>
+        <div class="nav-item">✓ Tasks</div>
+
+        <div class="sidebar-status">
+            <span class="online-dot"></span>
+            API Connected
+        </div>
+    </aside>
+
+    <main>
+
+        <header>
+            <div>
+                <h1>Agent Monitoring</h1>
+                <p class="header-description">
+                    Monitor LifeOS agents and execution performance.
+                </p>
+            </div>
+
+            <button class="refresh-button" onclick="loadDashboard()">
+                ↻ Refresh Data
+            </button>
+        </header>
+
+        <div id="errorMessage"></div>
+
+        <section class="stats">
+
+            <div class="card">
+                <div class="card-label">Total Executions</div>
+                <div class="card-value" id="totalExecutions">0</div>
+            </div>
+
+            <div class="card">
+                <div class="card-label">Successful Executions</div>
+                <div class="card-value success-text" id="successful">0</div>
+            </div>
+
+            <div class="card">
+                <div class="card-label">Failed Executions</div>
+                <div class="card-value failure-text" id="failed">0</div>
+            </div>
+
+            <div class="card">
+                <div class="card-label">Average Execution Time</div>
+                <div class="card-value" id="avgTime">0 ms</div>
+            </div>
+
+        </section>
+
+        <section class="section">
+
+            <div class="section-header">
+                <h2>Agent Activity</h2>
+                <span class="muted">Execution distribution</span>
+            </div>
+
+            <div class="agents">
+
+                <div class="agent-card">
+                    <div class="agent-name">Supervisor</div>
+                    <div class="agent-count" id="supervisorCount">0</div>
+                    <div class="muted">Requests classified</div>
+                </div>
+
+                <div class="agent-card">
+                    <div class="agent-name">Task Agent</div>
+                    <div class="agent-count" id="taskCount">0</div>
+                    <div class="muted">Task operations</div>
+                </div>
+
+                <div class="agent-card">
+                    <div class="agent-name">Memory Agent</div>
+                    <div class="agent-count" id="memoryCount">0</div>
+                    <div class="muted">Memory operations</div>
+                </div>
+
+                <div class="agent-card">
+                    <div class="agent-name">Chat Agent</div>
+                    <div class="agent-count" id="chatCount">0</div>
+                    <div class="muted">AI conversations</div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="section">
+
+            <div class="section-header">
+                <h2>Recent Executions</h2>
+                <span id="lastUpdated">Waiting for data...</span>
+            </div>
+
+            <div class="table-container">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Message</th>
+                            <th>Agent</th>
+                            <th>Action</th>
+                            <th>Status</th>
+                            <th>Duration</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="logsTable">
+                        <tr>
+                            <td colspan="6" class="empty">
+                                Loading execution history...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+        </section>
+
+        <section class="section">
+
+            <div class="section-header">
+                <h2>Task Overview</h2>
+                <span class="muted">Stored in SQLite</span>
+            </div>
+
+            <div class="card">
+                <div class="task-list" id="taskList">
+                    <div class="empty">Loading tasks...</div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+
+async function loadDashboard() {
+
+    const errorElement = document.getElementById("errorMessage");
+    errorElement.textContent = "";
+
+    try {
+
+        const [logsResponse, tasksResponse] = await Promise.all([
+            fetch("/logs?limit=200"),
+            fetch("/tasks")
+        ]);
+
+        if (!logsResponse.ok || !tasksResponse.ok) {
+            throw new Error("Could not retrieve dashboard data.");
+        }
+
+        const logsData = await logsResponse.json();
+        const tasksData = await tasksResponse.json();
+
+        const logs = logsData.logs || [];
+        const tasks = tasksData.tasks || [];
+
+        // Execution statistics
+
+        const successful = logs.filter(
+            log => log.status === "success"
+        ).length;
+
+        const failed = logs.filter(
+            log => log.status === "failed"
+        ).length;
+
+        const totalDuration = logs.reduce(
+            (sum, log) => sum + (log.duration_ms || 0), 0
+        );
+
+        const average = logs.length
+            ? Math.round(totalDuration / logs.length)
+            : 0;
+
+        document.getElementById("totalExecutions").textContent =
+            logsData.total;
+
+        document.getElementById("successful").textContent =
+            successful;
+
+        document.getElementById("failed").textContent =
+            failed;
+
+        document.getElementById("avgTime").textContent =
+            average + " ms";
+
+        // Agent statistics
+
+        const countAgent = name => logs.filter(
+            log => log.agent === name
+        ).length;
+
+        document.getElementById("supervisorCount").textContent =
+            logs.length;
+
+        document.getElementById("taskCount").textContent =
+            countAgent("task_agent");
+
+        document.getElementById("memoryCount").textContent =
+            countAgent("memory_agent");
+
+        document.getElementById("chatCount").textContent =
+            countAgent("chat_agent");
+
+        // Execution history
+
+        const logsTable = document.getElementById("logsTable");
+
+        if (!logs.length) {
+
+            logsTable.innerHTML =
+                '<tr><td colspan="6" class="empty">No executions recorded yet.</td></tr>';
+
+        } else {
+
+            logsTable.innerHTML = logs.map(log => {
+
+                const statusClass = log.status === "success"
+                    ? "status-success"
+                    : "status-failed";
+
+                return `
+                    <tr>
+                        <td>${log.id}</td>
+                        <td>${escapeHTML(log.message)}</td>
+                        <td>${escapeHTML(log.agent)}</td>
+                        <td>${escapeHTML(log.action)}</td>
+                        <td>
+                            <span class="status ${statusClass}">
+                                ${escapeHTML(log.status)}
+                            </span>
+                        </td>
+                        <td>${log.duration_ms ?? "-"} ms</td>
+                    </tr>
+                `;
+
+            }).join("");
+
+        }
+
+        // Task overview
+
+        const taskList = document.getElementById("taskList");
+
+        if (!tasks.length) {
+
+            taskList.innerHTML =
+                '<div class="empty">No tasks available.</div>';
+
+        } else {
+
+            taskList.innerHTML = tasks.map(task => {
+
+                const completed = task.status === "completed";
+
+                return `
+                    <div class="task-item">
+                        <span>
+                            #${task.id} — ${escapeHTML(task.title)}
+                        </span>
+                        <span class="task-status ${completed ? "completed" : ""}">
+                            ${escapeHTML(task.status)}
+                        </span>
+                    </div>
+                `;
+
+            }).join("");
+
+        }
+
+        document.getElementById("lastUpdated").textContent =
+            "Updated: " + new Date().toLocaleTimeString();
+
+    } catch (error) {
+
+        errorElement.textContent =
+            "Dashboard error: " + error.message;
+
+    }
+
+}
+
+
+function escapeHTML(value) {
+
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[character]);
+
+}
+
+
+loadDashboard();
+
+</script>
+
+</body>
+</html>
