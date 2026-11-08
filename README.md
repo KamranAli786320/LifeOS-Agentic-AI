@@ -190,7 +190,7 @@ Explain what LifeOS does in simple words.
 ```
 
 ## Monitoring Dashboard
-![LifeOS Dashboard](lifeos-dashboard.png)
+![LifeOS Dashboard](monitor%20agent.png)
 
 The LifeOS dashboard provides visibility into:
 
